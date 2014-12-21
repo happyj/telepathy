@@ -8,25 +8,13 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/validation"
-
 	. "telepathy/Utils"
 )
-
-var (
-	UserList map[uint64]*User
-)
-
-func init() {
-	//UserList = make(map[uint64]*User)
-	//u := User{11111, "astaxie", "11111", Profile{"male", 20, "Singapore", "astaxie@gmail.com"}}
-	//UserList[11111] = &u
-}
-
-//------------------------------------------
 
 //用户表
 type User struct {
 	Id            int64
+	Phone         uint32
 	Username      string    `orm:"unique;size(32)" form:"Username"  valid:"Required;MaxSize(20);MinSize(6)"`
 	Password      string    `orm:"size(32)" form:"Password" valid:"Required;MaxSize(20);MinSize(6)"`
 	Repassword    string    `orm:"-" form:"Repassword" valid:"Required"`
@@ -39,7 +27,7 @@ type User struct {
 }
 
 func (u *User) TableName() string {
-	return beego.AppConfig.String("rbac_user_table")
+	return beego.AppConfig.String("telepathy_user_table")
 }
 
 func (u *User) Valid(v *validation.Validation) {
@@ -65,7 +53,7 @@ func init() {
 	orm.RegisterModel(new(User))
 }
 
-//------------------------------------------
+//----------------------------------------------------------
 
 //get user list
 func Getuserlist(page int64, page_size int64, sort string) (users []orm.Params, count int64) {
@@ -83,13 +71,67 @@ func Getuserlist(page int64, page_size int64, sort string) (users []orm.Params, 
 	return users, count
 }
 
-//添加用户
-func AddUser(u *User) (int64, error) {
-	if err := checkUser(u); err != nil {
+func DelUserById(Id int64) (int64, error) {
+	o := orm.NewOrm()
+	status, err := o.Delete(&User{Id: Id})
+	return status, err
+}
+
+func GetUserByPhone(phone uint32) (user User) {
+	user = User{Phone: phone}
+	o := orm.NewOrm()
+	o.Read(&user, "Phone")
+	return user
+}
+
+//---------------------------------------------
+//注册相关
+func CanRegister(u *User) (err error) {
+	user := GetUserByPhone(u.Phone)
+	if user.Id == 0 {
+		return errors.New("用户不存在")
+	}
+
+	return nil
+}
+
+func Register(u *User) error {
+	if err := CanRegister(u); err != nil {
+		return err
+	}
+
+	//TODO:发送验证码至手机
+
+	return nil
+}
+
+func CanRegisterEnd(u *User) error {
+	//检查用户是否已经存在
+	user := GetUserByPhone(u.Phone)
+	if user.Id > 0 {
+		return errors.New("用户已存在")
+	}
+
+	//验证两次密码是否一致
+	valid := validation.Validation{}
+	b, _ := valid.Valid(&u)
+	if !b {
+		for _, err := range valid.Errors {
+			log.Println(err.Key, err.Message)
+			return errors.New(err.Message)
+		}
+	}
+	return nil
+}
+
+func RegisterEnd(u *User) (int64, error) {
+	if err := CanRegisterEnd(u); err != nil {
 		return 0, err
 	}
+
 	o := orm.NewOrm()
 	user := new(User)
+	user.Phone = u.Phone
 	user.Username = u.Username
 	user.Password = Strtomd5(u.Password)
 	user.Nickname = u.Nickname
@@ -101,9 +143,45 @@ func AddUser(u *User) (int64, error) {
 	return id, err
 }
 
-//更新用户
-func UpdateUser(u *User) (int64, error) {
-	if err := checkUser(u); err != nil {
+//---------------------------------------------
+//登录login相关
+
+func CanLogin(u *User) error {
+	//帐号验证
+	user := GetUserByPhone(u.Phone)
+	if user.Id == 0 {
+		return errors.New("用户不存在")
+	}
+
+	//密码验证
+	if user.Password != Pwdhash(u.Password) {
+		return errors.New("密码错误")
+	}
+
+	return nil
+}
+
+func Login(u *User) error {
+	if err := CanLogin(u); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+//---------------------------------------------
+//更新用户profile
+func CanUpdateProfile(u *User) error {
+	//检查用户是否存在
+	user := GetUserByPhone(u.Phone)
+	if user.Id == 0 {
+		return errors.New("用户不存在")
+	}
+	return nil
+}
+
+func UpdateProfile(u *User) (int64, error) {
+	if err := CanUpdateProfile(u); err != nil {
 		return 0, err
 	}
 	o := orm.NewOrm()
@@ -130,70 +208,6 @@ func UpdateUser(u *User) (int64, error) {
 		return 0, errors.New("update field is empty")
 	}
 	var table User
-	num, err := o.QueryTable(table).Filter("Id", u.Id).Update(user)
+	num, err := o.QueryTable(table).Filter("Phone", u.Phone).Update(user)
 	return num, err
 }
-
-func DelUserById(Id int64) (int64, error) {
-	o := orm.NewOrm()
-	status, err := o.Delete(&User{Id: Id})
-	return status, err
-}
-
-func GetUserByUsername(username string) (user User) {
-	user = User{Username: username}
-	o := orm.NewOrm()
-	o.Read(&user, "Username")
-	return user
-}
-
-//------------------------------------------
-
-//func GetUser(uid uint64) (u *User, err error) {
-//	if u, ok := UserList[uid]; ok {
-//		return u, nil
-//	}
-//	return nil, errors.New("User not exists")
-//}
-
-//func GetAllUsers() map[uint64]*User {
-//	return UserList
-//}
-
-//func UpdateUser(uid uint64, uu *User) (a *User, err error) {
-//	if u, ok := UserList[uid]; ok {
-//		if uu.Username != "" {
-//			u.Username = uu.Username
-//		}
-//		if uu.Password != "" {
-//			u.Password = uu.Password
-//		}
-//		if uu.Profile.Age != 0 {
-//			u.Profile.Age = uu.Profile.Age
-//		}
-//		if uu.Profile.Address != "" {
-//			u.Profile.Address = uu.Profile.Address
-//		}
-//		if uu.Profile.Gender != "" {
-//			u.Profile.Gender = uu.Profile.Gender
-//		}
-//		if uu.Profile.Email != "" {
-//			u.Profile.Email = uu.Profile.Email
-//		}
-//		return u, nil
-//	}
-//	return nil, errors.New("User Not Exist")
-//}
-
-//func Login(username, password string) bool {
-//	for _, u := range UserList {
-//		if u.Username == username && u.Password == password {
-//			return true
-//		}
-//	}
-//	return false
-//}
-
-//func DeleteUser(uid uint64) {
-//	delete(UserList, uid)
-//}

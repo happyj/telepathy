@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"telepathy/models"
 	"encoding/json"
+	"telepathy/models"
 
 	"github.com/astaxie/beego"
 )
@@ -98,9 +98,9 @@ func (u *UserController) Delete() {
 // @Failure 403 user not exist
 // @router /login [get]
 func (u *UserController) Login() {
-	username := u.GetString("username")
+	phone := u.GetUInt32("phone")
 	password := u.GetString("password")
-	if models.Login(username, password) {
+	if models.Login(phone, password) {
 		u.Data["json"] = "login success"
 	} else {
 		u.Data["json"] = "user not exist"
@@ -116,4 +116,3 @@ func (u *UserController) Logout() {
 	u.Data["json"] = "logout success"
 	u.ServeJson()
 }
-

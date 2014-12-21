@@ -8,10 +8,11 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	. "github.com/beego/admin/src/lib"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
+	//_ "github.com/mattn/go-sqlite3"
+
+	. "telepathy/Utils"
 )
 
 var o orm.Ormer
@@ -32,9 +33,9 @@ func Syncdb() {
 		fmt.Println(err)
 	}
 	insertUser()
-	insertGroup()
-	insertRole()
-	insertNodes()
+	//insertGroup()
+	//insertRole()
+	//insertNodes()
 	fmt.Println("database init is complete.\nPlease restart the application")
 
 }
@@ -134,68 +135,68 @@ func insertUser() {
 	fmt.Println("insert user end")
 }
 
-func insertGroup() {
-	fmt.Println("insert group ...")
-	g := new(Group)
-	g.Name = "APP"
-	g.Title = "System"
-	g.Sort = 1
-	g.Status = 2
-	o.Insert(g)
-	fmt.Println("insert group end")
-}
+//func insertGroup() {
+//	fmt.Println("insert group ...")
+//	g := new(Group)
+//	g.Name = "APP"
+//	g.Title = "System"
+//	g.Sort = 1
+//	g.Status = 2
+//	o.Insert(g)
+//	fmt.Println("insert group end")
+//}
 
-func insertRole() {
-	fmt.Println("insert role ...")
-	r := new(Role)
-	r.Name = "Admin"
-	r.Remark = "I'm a admin role"
-	r.Status = 2
-	r.Title = "Admin role"
-	o.Insert(r)
-	fmt.Println("insert role end")
-}
-func insertNodes() {
-	fmt.Println("insert node ...")
-	g := new(Group)
-	g.Id = 1
-	//nodes := make([20]Node)
-	nodes := [24]Node{
-		{Name: "rbac", Title: "RBAC", Remark: "", Level: 1, Pid: 0, Status: 2, Group: g},
-		{Name: "node/index", Title: "Node", Remark: "", Level: 2, Pid: 1, Status: 2, Group: g},
-		{Name: "index", Title: "node list", Remark: "", Level: 3, Pid: 2, Status: 2, Group: g},
-		{Name: "AddAndEdit", Title: "add or edit", Remark: "", Level: 3, Pid: 2, Status: 2, Group: g},
-		{Name: "DelNode", Title: "del node", Remark: "", Level: 3, Pid: 2, Status: 2, Group: g},
-		{Name: "user/index", Title: "User", Remark: "", Level: 2, Pid: 1, Status: 2, Group: g},
-		{Name: "Index", Title: "user list", Remark: "", Level: 3, Pid: 6, Status: 2, Group: g},
-		{Name: "AddUser", Title: "add user", Remark: "", Level: 3, Pid: 6, Status: 2, Group: g},
-		{Name: "UpdateUser", Title: "update user", Remark: "", Level: 3, Pid: 6, Status: 2, Group: g},
-		{Name: "DelUser", Title: "del user", Remark: "", Level: 3, Pid: 6, Status: 2, Group: g},
-		{Name: "group/index", Title: "Group", Remark: "", Level: 2, Pid: 1, Status: 2, Group: g},
-		{Name: "index", Title: "group list", Remark: "", Level: 3, Pid: 11, Status: 2, Group: g},
-		{Name: "AddGroup", Title: "add group", Remark: "", Level: 3, Pid: 11, Status: 2, Group: g},
-		{Name: "UpdateGroup", Title: "update group", Remark: "", Level: 3, Pid: 11, Status: 2, Group: g},
-		{Name: "DelGroup", Title: "del group", Remark: "", Level: 3, Pid: 11, Status: 2, Group: g},
-		{Name: "role/index", Title: "Role", Remark: "", Level: 2, Pid: 1, Status: 2, Group: g},
-		{Name: "index", Title: "role list", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
-		{Name: "AddAndEdit", Title: "add or edit", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
-		{Name: "DelRole", Title: "del role", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
-		{Name: "Getlist", Title: "get roles", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
-		{Name: "AccessToNode", Title: "show access", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
-		{Name: "AddAccess", Title: "add accsee", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
-		{Name: "RoleToUserList", Title: "show role to userlist", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
-		{Name: "AddRoleToUser", Title: "add role to user", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
-	}
-	for _, v := range nodes {
-		n := new(Node)
-		n.Name = v.Name
-		n.Title = v.Title
-		n.Remark = v.Remark
-		n.Level = v.Level
-		n.Pid = v.Pid
-		n.Status = v.Status
-		n.Group = v.Group
-		o.Insert(n)
-	}
-	fmt.Println("insert node end")
-}
+//func insertRole() {
+//	fmt.Println("insert role ...")
+//	r := new(Role)
+//	r.Name = "Admin"
+//	r.Remark = "I'm a admin role"
+//	r.Status = 2
+//	r.Title = "Admin role"
+//	o.Insert(r)
+//	fmt.Println("insert role end")
+//}
+//func insertNodes() {
+//	fmt.Println("insert node ...")
+//	g := new(Group)
+//	g.Id = 1
+//	//nodes := make([20]Node)
+//	nodes := [24]Node{
+//		{Name: "rbac", Title: "RBAC", Remark: "", Level: 1, Pid: 0, Status: 2, Group: g},
+//		{Name: "node/index", Title: "Node", Remark: "", Level: 2, Pid: 1, Status: 2, Group: g},
+//		{Name: "index", Title: "node list", Remark: "", Level: 3, Pid: 2, Status: 2, Group: g},
+//		{Name: "AddAndEdit", Title: "add or edit", Remark: "", Level: 3, Pid: 2, Status: 2, Group: g},
+//		{Name: "DelNode", Title: "del node", Remark: "", Level: 3, Pid: 2, Status: 2, Group: g},
+//		{Name: "user/index", Title: "User", Remark: "", Level: 2, Pid: 1, Status: 2, Group: g},
+//		{Name: "Index", Title: "user list", Remark: "", Level: 3, Pid: 6, Status: 2, Group: g},
+//		{Name: "AddUser", Title: "add user", Remark: "", Level: 3, Pid: 6, Status: 2, Group: g},
+//		{Name: "UpdateUser", Title: "update user", Remark: "", Level: 3, Pid: 6, Status: 2, Group: g},
+//		{Name: "DelUser", Title: "del user", Remark: "", Level: 3, Pid: 6, Status: 2, Group: g},
+//		{Name: "group/index", Title: "Group", Remark: "", Level: 2, Pid: 1, Status: 2, Group: g},
+//		{Name: "index", Title: "group list", Remark: "", Level: 3, Pid: 11, Status: 2, Group: g},
+//		{Name: "AddGroup", Title: "add group", Remark: "", Level: 3, Pid: 11, Status: 2, Group: g},
+//		{Name: "UpdateGroup", Title: "update group", Remark: "", Level: 3, Pid: 11, Status: 2, Group: g},
+//		{Name: "DelGroup", Title: "del group", Remark: "", Level: 3, Pid: 11, Status: 2, Group: g},
+//		{Name: "role/index", Title: "Role", Remark: "", Level: 2, Pid: 1, Status: 2, Group: g},
+//		{Name: "index", Title: "role list", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
+//		{Name: "AddAndEdit", Title: "add or edit", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
+//		{Name: "DelRole", Title: "del role", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
+//		{Name: "Getlist", Title: "get roles", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
+//		{Name: "AccessToNode", Title: "show access", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
+//		{Name: "AddAccess", Title: "add accsee", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
+//		{Name: "RoleToUserList", Title: "show role to userlist", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
+//		{Name: "AddRoleToUser", Title: "add role to user", Remark: "", Level: 3, Pid: 16, Status: 2, Group: g},
+//	}
+//	for _, v := range nodes {
+//		n := new(Node)
+//		n.Name = v.Name
+//		n.Title = v.Title
+//		n.Remark = v.Remark
+//		n.Level = v.Level
+//		n.Pid = v.Pid
+//		n.Status = v.Status
+//		n.Group = v.Group
+//		o.Insert(n)
+//	}
+//	fmt.Println("insert node end")
+//}
