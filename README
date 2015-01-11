@@ -1,0 +1,15 @@
+1 use ssdb as storage, because it support the redis protocal.
+  so you can use redis for test.
+  
+     git clone https://github.com/ideawu/ssdb-rocks.git
+     see http://ssdb.io/
+     
+2 add go-redis storage client
+     go get github.com/garyburd/redigo
+     see https://github.com/garyburd/redigo
+     
+3 use json as protocal
+     encoding/json
+     json.Marshal or json.Unmarshal
+     
+
